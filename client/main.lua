@@ -62,7 +62,7 @@ function OpenMenu()
 	}
 	
 	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'general_menu', {
-		title = "Casino Tokens",
+		title = "Lottery",
 		align = "center",
 		elements = options
 	}, function(data, menu)
