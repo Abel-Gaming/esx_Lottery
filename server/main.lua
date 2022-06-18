@@ -5,6 +5,11 @@ TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 local lotteryPot = 0
 local boughtTickets = {}
 
+RegisterServerEvent('esx_Lottery:BuyLottery')
+AddEventHandler('esx_Lottery:BuyLottery', function(tickets)
+    BuyTicket(source, tickets)
+end)
+
 -- Lottery Thread --
 Citizen.CreateThread(function()
     while true do
@@ -104,5 +109,36 @@ function checkTickets(identifier)
 end
 
 function DrawLottery()
+    local lotteryWinner = boughtTickets[math.random(#boughtTickets)]
+    local lotteryWinnerName = lotteryWinner.name
+    local lotteryWinnerIdentifier = lotteryWinner.identifier
+    local xPlayer = ESX.GetPlayerFromIdentifier(lotteryWinnerIdentifier)
 
+    if xPlayer then
+        -- Add the money
+        xPlayer.addMoney(lotteryPot * Config.DrawingMultiplier)
+
+        -- Notify the player
+        xPlayer.showNotification('Congratulations! You have won the lottery of $' .. lotteryPot * Config.DrawingMultiplier)
+
+        -- Notify chat
+        TriggerEvent("chat:addMessage", {
+            color = {255, 255, 255},
+            multiline = true,
+            args = { 'LOTTERY', "The lottery has been won by " .. lotteryWinnerName .. "!" }
+        })
+    else
+        -- Notify chat that the winner was not on and the winner will be redrawn
+        TriggerEvent("chat:addMessage", {
+            color = {255, 255, 255},
+            multiline = true,
+            args = { 'LOTTERY', "The lottery has been won by an offline player. It will redrawn in 30 seconds!" }
+        })
+
+        -- Wait
+        Citizen.Wait(30 * 1000)
+
+        -- Redraw Lottery
+        DrawLottery()
+    end
 end
