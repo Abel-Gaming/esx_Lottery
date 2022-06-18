@@ -31,22 +31,6 @@ if Config.UseCommand then
         local tickets = args[1]
 		BuyTicket(source, tickets)
 	end, false)
-
-    RegisterCommand(Config.SeeTicketsCommand, function(source, args)
-        local xPlayer = ESX.GetPlayerFromId(source)
-        local xPlayerIdentifier = xPlayer.getIdentifier()
-        local xPlayerTickets = checkTickets(xPlayerIdentifier)
-
-        if hasTicket(xPlayerIdentifier) then
-            xPlayer.showNotification('You have ' .. xPlayerTickets .. ' lottery tickets')
-        else
-            xPlayer.showNotification('You do not have any lottery tickets!')
-        end
-    end, false)
-
-    TriggerClientEvent('chat:addSuggestion', -1, Config.BuyCommand, 'Purchase Lottery Ticket', {
-        { name="Tickets", help="Number of tickets to purchase" }
-    })
 end
 
 RegisterCommand('drawLottery', function(source, args)
@@ -60,6 +44,23 @@ RegisterCommand('drawLottery', function(source, args)
     else
         xPlayer.showNotification('[ERROR] You are not an admin!')
     end
+end, false)
+
+RegisterCommand(Config.SeeTicketsCommand, function(source, args)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local xPlayerIdentifier = xPlayer.getIdentifier()
+    local xPlayerTickets = checkTickets(xPlayerIdentifier)
+
+    if hasTicket(xPlayerIdentifier) then
+        xPlayer.showNotification('You have ' .. xPlayerTickets .. ' lottery tickets')
+    else
+        xPlayer.showNotification('You do not have any lottery tickets!')
+    end
+end, false)
+
+RegisterCommand(Config.LotteryStatusCommand, function(source, args)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    xPlayer.showNotification('The currently lottery is $' .. format_thousand(lotteryPot * Config.DrawingMultiplier))
 end, false)
 
 function BuyTicket(source, tickets)

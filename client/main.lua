@@ -8,49 +8,59 @@ Citizen.CreateThread(function()
 	end
 end)
 
--- Create Markers
 Citizen.CreateThread(function()
-    while not NetworkIsSessionStarted() do -- Wait for the user to load
-		Wait(500)
-	end
-
-	while true do
-		Citizen.Wait(1)
-        for k,v in pairs(Config.PurchaseLocations) do
-            DrawMarker(25, v.x, v.y, v.z - 0.98, 
-		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.5, 0, 255, 0, 155, false, true, 2, nil, nil, false)
-        end
-	end
+	TriggerEvent('chat:addSuggestion', Config.BuyCommand, 'Purchase Lottery Ticket', {
+        { name="Tickets", help="Number of tickets to purchase" }
+    })
 end)
+
+-- Create Markers
+if Config.UsePosition then
+	Citizen.CreateThread(function()
+		while not NetworkIsSessionStarted() do -- Wait for the user to load
+			Wait(500)
+		end
+	
+		while true do
+			Citizen.Wait(1)
+			for k,v in pairs(Config.PurchaseLocations) do
+				DrawMarker(25, v.x, v.y, v.z - 0.98, 
+				0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 1.5, 0, 255, 0, 155, false, true, 2, nil, nil, false)
+			end
+		end
+	end)
+end
 
 -- Check the distance from the markers
-Citizen.CreateThread(function()
-	while not NetworkIsSessionStarted() do -- Wait for the user to load
-		Wait(500)
-	end
-
-	while true do
-		Citizen.Wait(1)
-        for k,v in pairs(Config.PurchaseLocations) do
-            while #(GetEntityCoords(PlayerPedId()) - v) <= 1.0 do
-                Citizen.Wait(0) -- REQUIRED
-    
-                -- Draw text with instructions
-                ESX.Game.Utils.DrawText3D(v, "Press ~b~[E]~s~ to buy lottery tickets")
-    
-                -- Check for button press
-                if IsControlJustReleased(0, 51) then
-					OpenMenu()
-
-					-- Wait for menu control
-					while ESX.UI.Menu.IsOpen("default", GetCurrentResourceName(), "general_menu") do
-						Wait(50)
+if Config.UsePosition then
+	Citizen.CreateThread(function()
+		while not NetworkIsSessionStarted() do -- Wait for the user to load
+			Wait(500)
+		end
+	
+		while true do
+			Citizen.Wait(1)
+			for k,v in pairs(Config.PurchaseLocations) do
+				while #(GetEntityCoords(PlayerPedId()) - v) <= 1.0 do
+					Citizen.Wait(0) -- REQUIRED
+		
+					-- Draw text with instructions
+					ESX.Game.Utils.DrawText3D(v, "Press ~b~[E]~s~ to buy lottery tickets")
+		
+					-- Check for button press
+					if IsControlJustReleased(0, 51) then
+						OpenMenu()
+	
+						-- Wait for menu control
+						while ESX.UI.Menu.IsOpen("default", GetCurrentResourceName(), "general_menu") do
+							Wait(50)
+						end
 					end
-                end
-            end
-        end
-	end
-end)
+				end
+			end
+		end
+	end)
+end
 
 function OpenMenu()
 	ESX.UI.Menu.CloseAll()
@@ -62,7 +72,7 @@ function OpenMenu()
 	}
 	
 	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'general_menu', {
-		title = "Lottery",
+		title = "San Andreas Lotto",
 		align = "center",
 		elements = options
 	}, function(data, menu)

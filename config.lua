@@ -7,10 +7,11 @@ Config.UsePosition = true -- If set to true, users can go to the preset location
 -- COMMAND SETTINGS --
 Config.BuyCommand = 'buy-lottery'
 Config.SeeTicketsCommand = 'see-tickets' -- This command will display how many tickets you have
+Config.LotteryStatusCommand = 'lottery-status' -- See the current pot & winning size of the lottery
 
 -- POSITION SETTINGS --
 Config.PurchaseLocations = {
-    vector3(25.746425628662, -1346.4639892578, 29.49702835083)
+    vector3(25.746425628662, -1346.4639892578, 29.49702835083) -- 24/7 on Innocent Blvd
 }
 
 -- GENERAL LOTTERY SETTINGS --
