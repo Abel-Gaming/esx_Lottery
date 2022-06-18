@@ -40,7 +40,7 @@ Citizen.CreateThread(function()
     
                 -- Check for button press
                 if IsControlJustReleased(0, 51) then
-                    
+                    -- Do something
                 end
             end
         end
