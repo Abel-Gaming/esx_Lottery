@@ -14,6 +14,10 @@ Config.PurchaseLocations = {
     vector3(25.746425628662, -1346.4639892578, 29.49702835083) -- 24/7 on Innocent Blvd
 }
 
+-- DISCORD WEBHOOK --
+Config.EnableDiscordLog = true
+Config.DiscordWebhookURL = 'https://discord.com/api/webhooks/987799948554825809/eB6LMyh5YTiulmrNex0U7JR8yI_biBjoWiSB-1RTBtszXg2DSkHz69pyPVzeV619KyxM'
+
 -- GENERAL LOTTERY SETTINGS --
 Config.TicketCost = 100
 Config.DrawInterval = 30 -- This is set in minutes

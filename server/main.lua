@@ -190,6 +190,16 @@ function DrawLottery()
             args = { '^1LOTTERY', "The lottery has been won by ^4" .. lotteryWinnerName .. "^7!" }
         })
 
+        -- Discord Webhook
+        if Config.EnableDiscordLog then
+            PerformHttpRequest(Config.Config.DiscordWebhookURL, function(err, text, headers) end, 'POST', json.encode(
+		    {
+			    username = 'San Andreas Lotto', 
+			    content = "" .. lotteryWinnerName .. " has won the lotter of $" .. lotteryPot * Config.DrawingMultiplier
+		    }
+	        ), { ['Content-Type'] = 'application/json' })
+        end
+
         -- Reset the lottery
         for k,v in pairs(boughtTickets) do 
             boughtTickets[k]=nil
