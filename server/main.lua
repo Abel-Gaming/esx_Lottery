@@ -4,6 +4,7 @@ TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 local lotteryPot = 0
 local boughtTickets = {}
+local drawingEntries = {}
 
 RegisterServerEvent('esx_Lottery:BuyLottery')
 AddEventHandler('esx_Lottery:BuyLottery', function(tickets)
@@ -15,7 +16,11 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(Config.DrawInterval * 60000)
         if #boughtTickets >= 1 then
-            DrawLottery()
+            if Config.MoreTicketsIncreaseProbability then
+                DrawLotteryWithProbability()
+            else
+                DrawLottery()
+            end 
         else
             TriggerClientEvent("chat:addMessage", -1, {
                 color = {255, 255, 255},
@@ -37,7 +42,11 @@ RegisterCommand('drawLottery', function(source, args)
     local xPlayer = ESX.GetPlayerFromId(source)
     if xPlayer.getGroup() == 'admin' then
         if #boughtTickets >= 1 then
-            DrawLottery()
+            if Config.MoreTicketsIncreaseProbability then
+                DrawLotteryWithProbability()
+            else
+                DrawLottery()
+            end 
         else
             xPlayer.showNotification('No lottery tickets have been purchased')
         end
@@ -149,7 +158,6 @@ function addTickets(identifier, tickets)
 end
 
 function checkTickets(identifier)
-    local xPlayer = ESX.GetPlayerFromId(player)
     for index, value in pairs(boughtTickets) do
         if value.identifier == identifier then
             local totalTickets = math.floor(value.tickets)
@@ -157,6 +165,75 @@ function checkTickets(identifier)
         end
     end
     return false
+end
+
+function DrawLotteryWithProbability()
+    -- Increase entry value for each ticket purchased
+    for k,v in pairs(boughtTickets) do
+        for i=1, v.tickets do
+            table.insert(drawingEntries, 
+                {
+                    name = v.name,
+                    identifier = v.identifier, 
+                    tickets = 1
+                }
+            )
+        end
+    end
+
+    -- Show drawing lottery message
+    TriggerClientEvent("chat:addMessage", -1, {
+        color = {255, 255, 255},
+        multiline = true,
+        args = { '^1LOTTERY', "The lottery will be drawn in ^25 seconds!" }
+    })
+
+    -- Wait
+    Wait(5 * 1000)
+
+    -- Select winner and get details
+    local lotteryWinner = drawingEntries[math.random(#drawingEntries)]
+    local lotteryWinnerName = lotteryWinner.name
+    local lotteryWinnerIdentifier = lotteryWinner.identifier
+    local xPlayer = ESX.GetPlayerFromIdentifier(lotteryWinnerIdentifier)
+
+    if xPlayer then
+        -- Add the money
+        xPlayer.addMoney(lotteryPot * Config.DrawingMultiplier)
+
+        -- Notify the player
+        xPlayer.showNotification('Congratulations! You have won the lottery of $' .. format_thousand(lotteryPot * Config.DrawingMultiplier))
+
+        -- Notify chat
+        TriggerClientEvent("chat:addMessage", -1, {
+            color = {255, 255, 255},
+            multiline = true,
+            args = { '^1LOTTERY', "The lottery has been won by ^4" .. lotteryWinnerName .. "^7!" }
+        })
+
+        -- Discord Webhook
+        if Config.EnableDiscordLog then
+            PerformHttpRequest(Config.DiscordWebhookURL, function(err, text, headers) end, 'POST', json.encode(
+		    {
+			    username = 'San Andreas Lotto', 
+			    content = "" .. lotteryWinnerName .. " has won the lotter of $" .. format_thousand(lotteryPot * Config.DrawingMultiplier)
+		    }
+	        ), { ['Content-Type'] = 'application/json' })
+        end
+
+        -- Reset the lottery
+        for k,v in pairs(boughtTickets) do 
+            boughtTickets[k]=nil
+        end
+        lotteryPot = 0
+    else
+        -- Notify chat that the winner was not on and the winner will be redrawn
+        TriggerClientEvent("chat:addMessage", -1, {
+            color = {255, 255, 255},
+            multiline = true,
+            args = { '^1LOTTERY', "The lottery has been won by an offline player!" }
+        })
+    end
 end
 
 function DrawLottery()
@@ -195,7 +272,7 @@ function DrawLottery()
             PerformHttpRequest(Config.DiscordWebhookURL, function(err, text, headers) end, 'POST', json.encode(
 		    {
 			    username = 'San Andreas Lotto', 
-			    content = "" .. lotteryWinnerName .. " has won the lotter of $" .. lotteryPot * Config.DrawingMultiplier
+			    content = "" .. lotteryWinnerName .. " has won the lotter of $" .. format_thousand(lotteryPot * Config.DrawingMultiplier)
 		    }
 	        ), { ['Content-Type'] = 'application/json' })
         end
@@ -203,6 +280,9 @@ function DrawLottery()
         -- Reset the lottery
         for k,v in pairs(boughtTickets) do 
             boughtTickets[k]=nil
+        end
+        for h,i in pairs(drawingEntries) do
+            drawingEntries[h]=nil
         end
         lotteryPot = 0
     else
@@ -212,6 +292,11 @@ function DrawLottery()
             multiline = true,
             args = { '^1LOTTERY', "The lottery has been won by an offline player!" }
         })
+
+        -- Reset the entries
+        for h,i in pairs(drawingEntries) do
+            drawingEntries[h]=nil
+        end
     end
 end
 

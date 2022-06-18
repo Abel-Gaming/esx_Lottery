@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 description 'ESX Lottery - Allow players to gamble the lottery!'
 author 'Abel Gaming'
-version '1.1'
+version '1.2'
 
 server_scripts {
 	'config.lua',
