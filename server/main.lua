@@ -192,7 +192,7 @@ function DrawLottery()
 
         -- Discord Webhook
         if Config.EnableDiscordLog then
-            PerformHttpRequest(Config.Config.DiscordWebhookURL, function(err, text, headers) end, 'POST', json.encode(
+            PerformHttpRequest(Config.DiscordWebhookURL, function(err, text, headers) end, 'POST', json.encode(
 		    {
 			    username = 'San Andreas Lotto', 
 			    content = "" .. lotteryWinnerName .. " has won the lotter of $" .. lotteryPot * Config.DrawingMultiplier
