@@ -225,6 +225,9 @@ function DrawLotteryWithProbability()
         for k,v in pairs(boughtTickets) do 
             boughtTickets[k]=nil
         end
+        for h,i in pairs(drawingEntries) do
+            drawingEntries[h]=nil
+        end
         lotteryPot = 0
     else
         -- Notify chat that the winner was not on and the winner will be redrawn
@@ -233,6 +236,11 @@ function DrawLotteryWithProbability()
             multiline = true,
             args = { '^1LOTTERY', "The lottery has been won by an offline player!" }
         })
+
+        -- Reset the entries
+        for h,i in pairs(drawingEntries) do
+            drawingEntries[h]=nil
+        end
     end
 end
 

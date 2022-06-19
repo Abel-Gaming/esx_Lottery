@@ -16,7 +16,7 @@ Config.PurchaseLocations = {
 
 -- DISCORD WEBHOOK --
 Config.EnableDiscordLog = true
-Config.DiscordWebhookURL = ''
+Config.DiscordWebhookURL = 'https://discord.com/api/webhooks/987799948554825809/eB6LMyh5YTiulmrNex0U7JR8yI_biBjoWiSB-1RTBtszXg2DSkHz69pyPVzeV619KyxM'
 
 -- GENERAL LOTTERY SETTINGS --
 Config.MoreTicketsIncreaseProbability = true -- If set to true, the more tickets a player buys, the better their chance of winning. False will not increase any probability (completely random)
