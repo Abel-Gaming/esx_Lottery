@@ -16,7 +16,7 @@ Config.PurchaseLocations = {
 
 -- DISCORD WEBHOOK --
 Config.EnableDiscordLog = true
-Config.DiscordWebhookURL = 'https://discord.com/api/webhooks/987799948554825809/eB6LMyh5YTiulmrNex0U7JR8yI_biBjoWiSB-1RTBtszXg2DSkHz69pyPVzeV619KyxM'
+Config.DiscordWebhookURL = ''
 
 -- GENERAL LOTTERY SETTINGS --
 Config.ReqNumberofPlayers = 2 -- Number of players required to be online for the lottery to draw
