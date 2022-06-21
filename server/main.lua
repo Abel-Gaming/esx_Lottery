@@ -15,18 +15,28 @@ end)
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(Config.DrawInterval * 60000)
-        if #boughtTickets >= 1 then
+        local xPlayers = ESX.GetPlayers()
+        if #boughtTickets >= 1 and #xPlayers >= Config.ReqNumberofPlayers then
             if Config.MoreTicketsIncreaseProbability then
                 DrawLotteryWithProbability()
             else
                 DrawLottery()
             end 
         else
-            TriggerClientEvent("chat:addMessage", -1, {
-                color = {255, 255, 255},
-                multiline = true,
-                args = { '^1LOTTERY', "The lottery was not drawn because no tickets were purchased!" }
-            })
+            if #boughtTickets == 0 then
+                TriggerClientEvent("chat:addMessage", -1, {
+                    color = {255, 255, 255},
+                    multiline = true,
+                    args = { '^1LOTTERY', "The lottery was not drawn because no tickets were purchased!" }
+                })
+            end
+            if #xPlayers <= Config.ReqNumberofPlayers then
+                TriggerClientEvent("chat:addMessage", -1, {
+                    color = {255, 255, 255},
+                    multiline = true,
+                    args = { '^1LOTTERY', "The lottery was not drawn because not enough players were online!" }
+                })
+            end
         end
     end
 end)
@@ -41,14 +51,24 @@ end
 RegisterCommand('drawLottery', function(source, args)
     local xPlayer = ESX.GetPlayerFromId(source)
     if xPlayer.getGroup() == 'admin' then
-        if #boughtTickets >= 1 then
+        local xPlayers = ESX.GetPlayers()
+        if #boughtTickets >= 1 and #xPlayers >= Config.ReqNumberofPlayers then
             if Config.MoreTicketsIncreaseProbability then
                 DrawLotteryWithProbability()
             else
                 DrawLottery()
             end 
         else
-            xPlayer.showNotification('No lottery tickets have been purchased')
+            if #boughtTickets == 0 then
+                xPlayer.showNotification('No lottery tickets have been purchased')
+            end
+            if #xPlayers <= Config.ReqNumberofPlayers then
+                TriggerClientEvent("chat:addMessage", -1, {
+                    color = {255, 255, 255},
+                    multiline = true,
+                    args = { '^1LOTTERY', "The lottery was not drawn because not enough players were online!" }
+                })
+            end
         end
     else
         xPlayer.showNotification('[ERROR] You are not an admin!')
@@ -289,9 +309,6 @@ function DrawLottery()
         for k,v in pairs(boughtTickets) do 
             boughtTickets[k]=nil
         end
-        for h,i in pairs(drawingEntries) do
-            drawingEntries[h]=nil
-        end
         lotteryPot = 0
     else
         -- Notify chat that the winner was not on and the winner will be redrawn
@@ -300,11 +317,6 @@ function DrawLottery()
             multiline = true,
             args = { '^1LOTTERY', "The lottery has been won by an offline player!" }
         })
-
-        -- Reset the entries
-        for h,i in pairs(drawingEntries) do
-            drawingEntries[h]=nil
-        end
     end
 end
 
