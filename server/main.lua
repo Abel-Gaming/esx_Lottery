@@ -6,12 +6,45 @@ local lotteryPot = 0
 local boughtTickets = {}
 local drawingEntries = {}
 
+----- EVENTS -----
 RegisterServerEvent('esx_Lottery:BuyLottery')
 AddEventHandler('esx_Lottery:BuyLottery', function(tickets)
     BuyTicket(source, tickets)
 end)
 
--- Lottery Thread --
+----- EXTERNAL EVENTS -----
+if Config.DrawBeforeScheduledRestart then
+    AddEventHandler('txAdmin:events:scheduledRestart', function(eventData)
+        if eventData.secondsRemaining == Config.SecondsBeforeRestart then
+            local xPlayers = ESX.GetPlayers()
+            if #boughtTickets >= 1 and #xPlayers >= Config.ReqNumberofPlayers then
+                if Config.MoreTicketsIncreaseProbability then
+                    DrawLotteryWithProbability()
+                else
+                    DrawLottery()
+                end 
+            else
+                if #boughtTickets == 0 then
+                    TriggerClientEvent("chat:addMessage", -1, {
+                        color = {255, 255, 255},
+                        multiline = true,
+                        args = { '^1LOTTERY', "No lottery tickets have been purchased" }
+                    })
+                end
+                if #xPlayers <= Config.ReqNumberofPlayers then
+                    TriggerClientEvent("chat:addMessage", -1, {
+                        color = {255, 255, 255},
+                        multiline = true,
+                        args = { '^1LOTTERY', "The lottery was not drawn because not enough players were online!" }
+                    })
+                end
+            end
+
+        end
+    end)
+end
+
+----- Lottery Thread -----
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(Config.DrawInterval * 60000)
@@ -41,6 +74,7 @@ Citizen.CreateThread(function()
     end
 end)
 
+----- COMMANDS -----
 if Config.UseCommand then
 	RegisterCommand(Config.BuyCommand, function(source, args)
         local tickets = args[1]
@@ -92,6 +126,7 @@ RegisterCommand(Config.LotteryStatusCommand, function(source, args)
     xPlayer.showNotification('The currently lottery is $' .. format_thousand(lotteryPot * Config.DrawingMultiplier))
 end, false)
 
+----- FUNCTIONS -----
 function BuyTicket(source, tickets)
     -- Get the player information
     local xPlayer = ESX.GetPlayerFromId(source)
@@ -236,7 +271,7 @@ function DrawLotteryWithProbability()
             PerformHttpRequest(Config.DiscordWebhookURL, function(err, text, headers) end, 'POST', json.encode(
 		    {
 			    username = 'San Andreas Lotto', 
-			    content = "" .. lotteryWinnerName .. " has won the lotter of $" .. format_thousand(lotteryPot * Config.DrawingMultiplier)
+			    content = "" .. lotteryWinnerName .. " has won the lottery of $" .. format_thousand(lotteryPot * Config.DrawingMultiplier)
 		    }
 	        ), { ['Content-Type'] = 'application/json' })
         end
@@ -300,7 +335,7 @@ function DrawLottery()
             PerformHttpRequest(Config.DiscordWebhookURL, function(err, text, headers) end, 'POST', json.encode(
 		    {
 			    username = 'San Andreas Lotto', 
-			    content = "" .. lotteryWinnerName .. " has won the lotter of $" .. format_thousand(lotteryPot * Config.DrawingMultiplier)
+			    content = "" .. lotteryWinnerName .. " has won the lottery of $" .. format_thousand(lotteryPot * Config.DrawingMultiplier)
 		    }
 	        ), { ['Content-Type'] = 'application/json' })
         end
